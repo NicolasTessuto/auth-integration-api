@@ -1,4 +1,4 @@
-package br.com.nicolastessuto.auth_integration_api.config;
+package br.com.nicolastessuto.auth_integration_api.config.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
