@@ -31,7 +31,7 @@ public class AuthServiceImpl implements AuthService {
         try {
             return Provider.valueOf(providerRequest.toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Provider não suportado");
+            throw new IllegalArgumentException("Provider not supported");
         }
     }
 
