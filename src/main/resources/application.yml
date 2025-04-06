@@ -1,3 +1,11 @@
 spring:
   application:
     name: auth-integration-api
+
+authentication-provider:
+  hubspot:
+    application:
+      id: ${HUBSPOT_APPLICATION_ID}
+      client-id: ${HUBSPOT_CLIENT_ID}
+      client-secret: ${HUBSPOT_CLIENT_SECRET}
+      redirect-uri: ${HUBSPOT_REDIRECT_URI}
