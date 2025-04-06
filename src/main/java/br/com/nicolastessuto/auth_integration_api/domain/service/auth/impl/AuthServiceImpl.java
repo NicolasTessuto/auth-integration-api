@@ -6,7 +6,9 @@ import br.com.nicolastessuto.auth_integration_api.domain.service.auth.AuthServic
 import br.com.nicolastessuto.auth_integration_api.domain.service.auth.GenericAuthClient;
 import br.com.nicolastessuto.auth_integration_api.domain.service.auth.response.AuthLinkResponse;
 import br.com.nicolastessuto.auth_integration_api.domain.service.auth.response.AvailableProvidersResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -18,14 +20,19 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthLinkResponse getAuthLink(String providerRequest) {
-        Provider provider = validateAndGetProvider(providerRequest);
-
-        GenericAuthClient genericAuthClient = AuthFactory.getAuthServiceProvider(provider);
+        GenericAuthClient genericAuthClient =
+                validateProviderAndGetAuthClient(providerRequest);
 
         return AuthLinkResponse.builder()
                 .link(genericAuthClient.getAuthLink())
                 .build();
     }
+
+    private GenericAuthClient validateProviderAndGetAuthClient(String providerRequest) {
+        Provider provider = validateAndGetProvider(providerRequest);
+        return AuthFactory.getAuthServiceProvider(provider);
+    }
+
 
     private Provider validateAndGetProvider(String providerRequest) {
         try {
@@ -45,6 +52,12 @@ public class AuthServiceImpl implements AuthService {
         return AvailableProvidersResponse.builder()
                 .providers(providers)
                 .build();
+    }
+
+    @Override
+    public ResponseEntity<Void> generateTokens(String code, String provider, HttpServletRequest httpServletRequest) {
+        GenericAuthClient genericAuthClient = validateProviderAndGetAuthClient(provider);
+        return genericAuthClient.generateAuthTokenAndRefreshToken(code, httpServletRequest);
     }
 
 }
