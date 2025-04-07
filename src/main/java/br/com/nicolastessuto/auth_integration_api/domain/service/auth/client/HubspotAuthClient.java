@@ -22,9 +22,6 @@ import java.net.URI;
 @RequiredArgsConstructor
 public class HubspotAuthClient implements GenericAuthClient {
 
-    @Value("${authentication-provider.hubspot.application.id}")
-    private String HUBSPOT_APPLICATION_ID;
-
     @Value("${authentication-provider.hubspot.application.client-id}")
     private String HUBSPOT_CLIENT_ID;
 

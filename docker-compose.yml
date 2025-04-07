@@ -1,0 +1,41 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"   # AMQP protocol port
+      - "15672:15672" # Management UI port
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USERNAME}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 3s
+      timeout: 5s
+      retries: 5
+
+  auth-integration-api:
+    image: auth-integration-api:latest
+    container_name: auth-integration-api
+    ports:
+      - "8080:8080"
+    build:
+      context: .
+      args:
+        HUBSPOT_CLIENT_ID: ${HUBSPOT_CLIENT_ID}
+        HUBSPOT_CLIENT_SECRET: ${HUBSPOT_CLIENT_SECRET}
+        HUBSPOT_REDIRECT_URI: ${HUBSPOT_REDIRECT_URI}
+        HUBSPOT_EXCHANGE_FOR_TOKEN_URL: ${HUBSPOT_EXCHANGE_FOR_TOKEN_URL}
+    environment:
+      - HUBSPOT_CLIENT_ID=${HUBSPOT_CLIENT_ID}
+      - HUBSPOT_CLIENT_SECRET=${HUBSPOT_CLIENT_SECRET}
+      - HUBSPOT_REDIRECT_URI=${HUBSPOT_REDIRECT_URI}
+      - HUBSPOT_EXCHANGE_FOR_TOKEN_URL=${HUBSPOT_EXCHANGE_FOR_TOKEN_URL}
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
+      - SPRING_RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - RABBITMQ_HUBSPOT_CONTACT_FALLBACK_QUEUE=${RABBIT_HUBSPOT_CONTACT_FALLBACK_QUEUE}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
