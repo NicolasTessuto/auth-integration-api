@@ -1,11 +1,18 @@
 spring:
   application:
     name: auth-integration-api
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST}
+    port: ${SPRING_RABBITMQ_PORT}
+    username: ${SPRING_RABBITMQ_USERNAME}
+    password: ${SPRING_RABBITMQ_PASSWORD}
+
+rabbitmq:
+  hubspot-contact-fallback-queue: ${RABBIT_HUBSPOT_CONTACT_FALLBACK_QUEUE}
 
 authentication-provider:
   hubspot:
     application:
-      id: ${HUBSPOT_APPLICATION_ID}
       client-id: ${HUBSPOT_CLIENT_ID}
       client-secret: ${HUBSPOT_CLIENT_SECRET}
       redirect-uri: ${HUBSPOT_REDIRECT_URI}
