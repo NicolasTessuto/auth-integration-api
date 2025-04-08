@@ -6,4 +6,6 @@ public interface UserSessionService {
     void saveUserSession(String id, AuthTokenIntegrationResponse authTokenIntegrationResponse);
 
     String getRefreshTokenBySessionId(String sessionId);
+
+    String getRefreshTokenByOldToken(String authorization);
 }

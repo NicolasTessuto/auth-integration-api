@@ -24,6 +24,8 @@ spring:
 
 rabbitmq:
   hubspot-contact-fallback-queue: ${RABBIT_HUBSPOT_CONTACT_FALLBACK_QUEUE}
+  hubspot-contact-delay-fallback-queue: ${RABBIT_HUBSPOT_CONTACT_DELAY_FALLBACK_QUEUE}
+  hubspot-contact-fallback-error-queue: ${RABBIT_HUBSPOT_CONTACT_FALLBACK_ERROR_QUEUE}
 
 authentication-provider:
   hubspot:

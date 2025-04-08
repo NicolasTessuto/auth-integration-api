@@ -1,4 +1,4 @@
-package br.com.nicolastessuto.auth_integration_api.respository;
+package br.com.nicolastessuto.auth_integration_api.domain.respository;
 
 import br.com.nicolastessuto.auth_integration_api.domain.auth.UserSession;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface UserSessionRepository extends JpaRepository<UserSession, String> {
 
     Optional<UserSession> findBySessionId(String sessionId);
+
+    Optional<UserSession> findByToken(String authorization);
 }

@@ -17,11 +17,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ContactServiceImpl implements ContactService {
 
-    private ContactFactory contactFactory;
-
     @Override
-    public ContactResponse createNewContact(ContactRequest contactRequest, String target, String authorization) {
-        GenericContactClient genericContactClient = validateProviderAndGetContactClient(target);
+    public ContactResponse createNewContact(ContactRequest contactRequest, String targetRequest, String authorization) {
+        GenericContactClient genericContactClient = validateProviderAndGetContactClient(targetRequest);
         return genericContactClient.createContact(contactRequest, authorization);
     }
 

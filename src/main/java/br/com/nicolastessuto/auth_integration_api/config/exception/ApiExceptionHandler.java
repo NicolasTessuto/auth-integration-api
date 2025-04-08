@@ -1,6 +1,7 @@
 package br.com.nicolastessuto.auth_integration_api.config.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -33,6 +34,16 @@ public class ApiExceptionHandler {
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ApiException> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException ex) {
         return ResponseEntity.badRequest().body(new ApiException(ex.getMessage(), LocalDateTime.now()));
+    }
+
+    @ExceptionHandler(DuplicateKeyException.class)
+    public ResponseEntity<ApiException> handleDuplicateKeyException(DuplicateKeyException ex) {
+        return ResponseEntity.badRequest().body(new ApiException(ex.getMessage(), LocalDateTime.now()));
+    }
+
+    @ExceptionHandler(HubspotIntegrationException.class)
+    public ResponseEntity<ApiException> handleHubspotIntegrationException(HubspotIntegrationException ex) {
+        return ResponseEntity.status(ex.getStatusCode()).body(new ApiException(ex.getLocalizedMessage(), LocalDateTime.now()));
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)

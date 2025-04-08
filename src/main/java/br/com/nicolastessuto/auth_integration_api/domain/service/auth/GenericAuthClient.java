@@ -7,4 +7,6 @@ public interface GenericAuthClient {
     String getAuthLink();
 
     TokenResponse generateAuthTokenAndRefreshToken(String code, HttpServletRequest httpServletRequest);
+
+    String reAuthorizeByExpiredToken(String authorization);
 }
