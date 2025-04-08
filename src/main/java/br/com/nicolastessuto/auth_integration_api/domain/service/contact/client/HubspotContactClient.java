@@ -114,6 +114,7 @@ public class HubspotContactClient implements GenericContactClient {
             }
             case CONFLICT -> throw new DuplicateKeyException("Contact already registered");
             case UNAUTHORIZED -> throw new HubspotIntegrationException("Unauthorized access", status);
+            case PAYMENT_REQUIRED -> throw new HubspotIntegrationException("Payment required", status);
             default -> throw new HubspotIntegrationException("Integration error not captured", status);
         }
     }
