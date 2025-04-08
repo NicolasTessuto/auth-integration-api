@@ -3,6 +3,7 @@ package br.com.nicolastessuto.auth_integration_api.domain.service.contact.client
 import br.com.nicolastessuto.auth_integration_api.config.exception.HubspotIntegrationException;
 import br.com.nicolastessuto.auth_integration_api.domain.service.contact.GenericContactClient;
 import br.com.nicolastessuto.auth_integration_api.domain.service.contact.request.ContactDataIntegrationRequest;
+import br.com.nicolastessuto.auth_integration_api.domain.service.contact.request.ContactIntegrationMessageRequest;
 import br.com.nicolastessuto.auth_integration_api.domain.service.contact.request.ContactIntegrationRequest;
 import br.com.nicolastessuto.auth_integration_api.domain.service.contact.request.ContactRequest;
 import br.com.nicolastessuto.auth_integration_api.domain.service.contact.response.ContactDataIntegrationResponse;
@@ -10,6 +11,7 @@ import br.com.nicolastessuto.auth_integration_api.domain.service.contact.respons
 import br.com.nicolastessuto.auth_integration_api.domain.service.contact.response.ContactResponse;
 import br.com.nicolastessuto.auth_integration_api.domain.service.rabbitMq.RabbitMqService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatusCode;
@@ -21,6 +23,7 @@ import reactor.core.publisher.Mono;
 
 import static org.springframework.http.HttpStatus.*;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class HubspotContactClient implements GenericContactClient {
@@ -44,7 +47,7 @@ public class HubspotContactClient implements GenericContactClient {
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(contactIntegrationRequest)
                         .exchangeToMono(clientResponse ->
-                                validateCreateIntegrationResponse(clientResponse, contactIntegrationRequest)
+                                validateCreateIntegrationResponse(clientResponse, contactIntegrationRequest, authorization)
                         )
                         .block();
 
@@ -52,14 +55,14 @@ public class HubspotContactClient implements GenericContactClient {
     }
 
     @Override
-    public Void createContact(ContactIntegrationRequest contactRequest, String authorization) {
+    public Void createContact(ContactIntegrationMessageRequest contactRequest) {
         webClient.post()
                 .uri(CONTACT_BASE_URL)
-                .header("Authorization", validateAndUpdate(authorization))
+                .header("Authorization", validateAndUpdate(contactRequest.authorization()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(contactRequest)
                 .exchangeToMono(clientResponse ->
-                        validateOrThrowException(clientResponse, contactRequest)
+                        validateOrThrowException(clientResponse, contactRequest.contactIntegration())
                 )
                 .block();
 
@@ -68,6 +71,7 @@ public class HubspotContactClient implements GenericContactClient {
 
     private Mono<Object> validateOrThrowException(ClientResponse clientResponse, ContactIntegrationRequest contactRequest) {
         if(clientResponse.statusCode().isError()) {
+            log.error("Error in trying to resend a contact to hubspot" + contactRequest);
             throw new RuntimeException("Error in trying to resend a contact to hubspot " + clientResponse.statusCode());
         }
         return Mono.just(contactRequest);
@@ -95,7 +99,8 @@ public class HubspotContactClient implements GenericContactClient {
 
 
     private Mono<ContactIntegrationResponse> validateCreateIntegrationResponse(ClientResponse clientResponse,
-                                                                               ContactIntegrationRequest contactIntegrationRequest) {
+                                                                               ContactIntegrationRequest contactIntegrationRequest,
+                                                                               String authorization) {
         HttpStatusCode status = clientResponse.statusCode();
 
         switch (status) {
@@ -103,13 +108,21 @@ public class HubspotContactClient implements GenericContactClient {
                 return clientResponse.bodyToMono(ContactIntegrationResponse.class);
             }
             case TOO_MANY_REQUESTS -> {
-                rabbitMqService.publishObjectInQueue(HUBSPOT_FALLBACK_DELAY_QUEUE, contactIntegrationRequest);
+                log.warn("Too many requests, sending to queue" + contactIntegrationRequest);
+                rabbitMqService.publishObjectInQueue(HUBSPOT_FALLBACK_DELAY_QUEUE, generateNewPayload(contactIntegrationRequest, authorization));
                 return generateFakeSuccessIntegrationResponse(contactIntegrationRequest);
             }
             case CONFLICT -> throw new DuplicateKeyException("Contact already registered");
             case UNAUTHORIZED -> throw new HubspotIntegrationException("Unauthorized access", status);
             default -> throw new HubspotIntegrationException("Integration error not captured", status);
         }
+    }
+
+    private ContactIntegrationMessageRequest generateNewPayload(ContactIntegrationRequest contactIntegrationRequest, String authorization) {
+        return ContactIntegrationMessageRequest.builder()
+                .authorization(authorization)
+                .contactIntegration(contactIntegrationRequest)
+                .build();
     }
 
     private Mono<ContactIntegrationResponse> generateFakeSuccessIntegrationResponse(ContactIntegrationRequest contactIntegrationRequest) {
