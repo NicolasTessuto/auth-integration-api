@@ -2,6 +2,7 @@ package br.com.nicolastessuto.auth_integration_api.domain.service.auth.client;
 
 import br.com.nicolastessuto.auth_integration_api.domain.service.auth.GenericAuthClient;
 import br.com.nicolastessuto.auth_integration_api.domain.service.auth.response.AuthTokenIntegrationResponse;
+import br.com.nicolastessuto.auth_integration_api.domain.service.auth.response.TokenResponse;
 import br.com.nicolastessuto.auth_integration_api.domain.service.userSession.UserSessionService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -41,14 +43,21 @@ public class HubspotAuthClient implements GenericAuthClient {
     public String getAuthLink() {
 
         String HUBSPOT_AUTH_BASE_LINK = "https://app.hubspot.com/oauth/authorize?" +
-                "client_id=%s&scope=oauth&redirect_uri=%s" +
+                "client_id=%s&scope=%s&redirect_uri=%s" +
                 "&state=HUBSPOT";
 
-        return String.format(String.format(HUBSPOT_AUTH_BASE_LINK, HUBSPOT_CLIENT_ID, HUBSPOT_REDIRECT_URI));
+        String availableScopes = "oauth%20" +
+                "crm.objects.contacts.write";
+
+        return String.format(
+                HUBSPOT_AUTH_BASE_LINK,
+                HUBSPOT_CLIENT_ID,
+                availableScopes,
+                HUBSPOT_REDIRECT_URI);
     }
 
     @Override
-    public ResponseEntity<Void> generateAuthTokenAndRefreshToken(String code, HttpServletRequest httpServletRequest) {
+    public TokenResponse generateAuthTokenAndRefreshToken(String code, HttpServletRequest httpServletRequest) {
         String sessionId = httpServletRequest.getSession().getId();
         Mono<AuthTokenIntegrationResponse> response = generateIntegrationAndAuthorize(code, false, sessionId);
 
@@ -56,13 +65,10 @@ public class HubspotAuthClient implements GenericAuthClient {
         if (authTokenResponse != null) {
             userSessionService.saveUserSession(
                     sessionId,
-                    authTokenResponse.refreshToken(),
-                    authTokenResponse.expiresIn()
+                    authTokenResponse
             );
         }
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(URI.create("/home"));
-        return new ResponseEntity<>(headers, HttpStatus.valueOf(200));
+        return new TokenResponse("Bearer " + authTokenResponse.token());
     }
 
     private Mono<AuthTokenIntegrationResponse> generateIntegrationAndAuthorize(String code,

@@ -22,18 +22,11 @@ RUN ./gradlew build --no-daemon -x test
 FROM eclipse-temurin:21-jre
 WORKDIR /app
 
-# Environment variables for HubSpot integration
-# These are placeholder values that should be overridden at runtime
-# HubSpot Application credentials
-ENV HUBSPOT_CLIENT_ID="xxxxx"
-ENV HUBSPOT_CLIENT_SECRET="xxxxx"
-ENV HUBSPOT_REDIRECT_URI="xxxxx"
-ENV HUBSPOT_EXCHANGE_FOR_TOKEN_URL="xxxxx"
-ENV RABBITMQ_USERNAME="xxxxx"
-ENV RABBITMQ_PASSWORD="xxxxx"
-ENV RABBIT_HUBSPOT_CONTACT_FALLBACK_QUEUE="xxxxx"
+# Application configuration
+# Only fixed environment variables are defined here
+# Dynamic variables are managed by docker-compose.yml at runtime
 
-# HubSpot API configuration
+# Application configuration
 ENV SPRING_PROFILES_ACTIVE="dev"
 ENV SERVER_PORT="8080"
 ENV LOGGING_LEVEL_ROOT="INFO"

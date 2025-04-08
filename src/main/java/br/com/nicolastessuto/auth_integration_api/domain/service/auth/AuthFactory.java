@@ -14,7 +14,7 @@ public class AuthFactory {
         AuthFactory.context = context;
     }
 
-    public static GenericAuthClient getAuthServiceProvider(Provider provider) {
+    public static GenericAuthClient getAuthClientProvider(Provider provider) {
         return switch (provider) {
             case HUBSPOT -> context.getBean(HubspotAuthClient.class);
         };

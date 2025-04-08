@@ -6,6 +6,7 @@ import br.com.nicolastessuto.auth_integration_api.domain.service.auth.AuthServic
 import br.com.nicolastessuto.auth_integration_api.domain.service.auth.GenericAuthClient;
 import br.com.nicolastessuto.auth_integration_api.domain.service.auth.response.AuthLinkResponse;
 import br.com.nicolastessuto.auth_integration_api.domain.service.auth.response.AvailableProvidersResponse;
+import br.com.nicolastessuto.auth_integration_api.domain.service.auth.response.TokenResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +31,7 @@ public class AuthServiceImpl implements AuthService {
 
     private GenericAuthClient validateProviderAndGetAuthClient(String providerRequest) {
         Provider provider = validateAndGetProvider(providerRequest);
-        return AuthFactory.getAuthServiceProvider(provider);
+        return AuthFactory.getAuthClientProvider(provider);
     }
 
 
@@ -55,7 +56,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public ResponseEntity<Void> generateTokens(String code, String provider, HttpServletRequest httpServletRequest) {
+    public TokenResponse generateTokens(String code, String provider, HttpServletRequest httpServletRequest) {
         GenericAuthClient genericAuthClient = validateProviderAndGetAuthClient(provider);
         return genericAuthClient.generateAuthTokenAndRefreshToken(code, httpServletRequest);
     }
