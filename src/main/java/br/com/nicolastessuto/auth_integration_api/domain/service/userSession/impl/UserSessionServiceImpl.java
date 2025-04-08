@@ -1,6 +1,7 @@
 package br.com.nicolastessuto.auth_integration_api.domain.service.userSession.impl;
 
 import br.com.nicolastessuto.auth_integration_api.domain.auth.UserSession;
+import br.com.nicolastessuto.auth_integration_api.domain.service.auth.response.AuthTokenIntegrationResponse;
 import br.com.nicolastessuto.auth_integration_api.domain.service.userSession.UserSessionService;
 import br.com.nicolastessuto.auth_integration_api.respository.UserSessionRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -16,16 +17,17 @@ public class UserSessionServiceImpl implements UserSessionService {
     private final UserSessionRepository userSessionRepository;
 
     @Override
-    public void saveUserSession(String id, String refreshToken, Integer expiresIn) {
+    public void saveUserSession(String id, AuthTokenIntegrationResponse integrationResponse) {
 
         try {
             findBySessionId(id);
         } catch (EntityNotFoundException ignored) {
             var userSession = UserSession.builder()
                     .sessionId(id)
-                    .refreshToken(refreshToken)
+                    .refreshToken(integrationResponse.refreshToken())
+                    .token(integrationResponse.token())
                     .expirationTimestamp(
-                            calculateExpiration(expiresIn)
+                            calculateExpiration(integrationResponse.expiresIn())
                     )
                     .build();
 
@@ -44,7 +46,8 @@ public class UserSessionServiceImpl implements UserSessionService {
     }
 
     public UserSession findBySessionId(String sessionId) {
-        return userSessionRepository.findBySessionId(sessionId).orElseThrow(() -> new EntityNotFoundException("Session not found"));
+        var response = userSessionRepository.findBySessionId(sessionId).orElseThrow(() -> new EntityNotFoundException("Session not found"));
+        return response;
     }
 
 }
