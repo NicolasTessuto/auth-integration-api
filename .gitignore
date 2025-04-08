@@ -29,8 +29,5 @@ Thumbs.db
 # Spring Boot: Arquivos de cache e dados temporários
 spring.log
 
-# Gradle Wrapper
-gradle/wrapper/gradle-wrapper.jar
-
 # Outras pastas de build (se aplicável)
 out/
