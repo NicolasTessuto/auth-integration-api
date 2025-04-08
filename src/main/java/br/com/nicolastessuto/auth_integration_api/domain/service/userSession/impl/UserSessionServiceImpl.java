@@ -3,7 +3,7 @@ package br.com.nicolastessuto.auth_integration_api.domain.service.userSession.im
 import br.com.nicolastessuto.auth_integration_api.domain.auth.UserSession;
 import br.com.nicolastessuto.auth_integration_api.domain.service.auth.response.AuthTokenIntegrationResponse;
 import br.com.nicolastessuto.auth_integration_api.domain.service.userSession.UserSessionService;
-import br.com.nicolastessuto.auth_integration_api.respository.UserSessionRepository;
+import br.com.nicolastessuto.auth_integration_api.domain.respository.UserSessionRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -43,6 +43,15 @@ public class UserSessionServiceImpl implements UserSessionService {
     @Override
     public String getRefreshTokenBySessionId(String sessionId) {
         return findBySessionId(sessionId).getRefreshToken();
+    }
+
+    @Override
+    public String getRefreshTokenByOldToken(String authorization) {
+        return findByCurrentToken(authorization).getRefreshToken();
+    }
+
+    private UserSession findByCurrentToken(String authorization) {
+        return userSessionRepository.findByToken(authorization).orElseThrow(() -> new EntityNotFoundException("Session not found"));
     }
 
     public UserSession findBySessionId(String sessionId) {

@@ -19,7 +19,7 @@ COPY src/ src/
 RUN ./gradlew build --no-daemon -x test
 
 # Runtime stage
-FROM eclipse-temurin:21-jre
+FROM eclipse-temurin:21-jdk
 WORKDIR /app
 
 # Application configuration

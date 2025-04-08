@@ -59,7 +59,7 @@ public class HubspotAuthClient implements GenericAuthClient {
     @Override
     public TokenResponse generateAuthTokenAndRefreshToken(String code, HttpServletRequest httpServletRequest) {
         String sessionId = httpServletRequest.getSession().getId();
-        Mono<AuthTokenIntegrationResponse> response = generateIntegrationAndAuthorize(code, false, sessionId);
+        Mono<AuthTokenIntegrationResponse> response = generateIntegrationAndAuthorize(code, false);
 
         AuthTokenIntegrationResponse authTokenResponse = response.block();
         if (authTokenResponse != null) {
@@ -71,9 +71,19 @@ public class HubspotAuthClient implements GenericAuthClient {
         return new TokenResponse("Bearer " + authTokenResponse.token());
     }
 
+    @Override
+    public String reAuthorizeByExpiredToken(String authorization) {
+        String refreshToken = userSessionService.getRefreshTokenByOldToken(authorization);
+        Mono<AuthTokenIntegrationResponse> response = generateIntegrationAndAuthorize(refreshToken, true);
+        AuthTokenIntegrationResponse authTokenResponse = response.block();
+        if (authTokenResponse != null) {
+            authorization = "Bearer " + authTokenResponse.token();
+        }
+        return authorization;
+    }
+
     private Mono<AuthTokenIntegrationResponse> generateIntegrationAndAuthorize(String code,
-                                                                               Boolean hasToUpdateToken,
-                                                                               String sessionId) {
+                                                                               Boolean hasToUpdateToken) {
 
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("redirect_uri", HUBSPOT_REDIRECT_URI);
@@ -82,7 +92,7 @@ public class HubspotAuthClient implements GenericAuthClient {
 
         if (hasToUpdateToken) {
             formData.add("grant_type",  "refresh_token");
-            formData.add("refresh_token", userSessionService.getRefreshTokenBySessionId(sessionId));
+            formData.add("refresh_token", code);
         } else {
             formData.add("grant_type", "authorization_code");
             formData.add("code", code);
