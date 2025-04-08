@@ -95,15 +95,42 @@ Isso iniciará todos os serviços necessários:
 
 #### Obter URL de Login
 ```http
-GET /api/v1/auth/login-url
+GET /api/v1/auth/login-url?provider=HUBSPOT
 ```
 Retorna uma URL para o usuário acessar o sistema, baseada no _authorization provider_ desejado (quando houver mais de um, o parâmetro `provider` pode ser informado na request).
+
+**Exemplo de Resposta:**
+```json
+{
+  "link": "https://app.hubspot.com/oauth/authorize?client_id=xxxx&scope=contacts&redirect_uri=http://localhost:8080/api/v1/auth/callback"
+}
+```
 
 #### Listar Providers Disponíveis
 ```http
 GET /api/v1/auth/available-providers
 ```
 Retorna os _authorization providers_ disponíveis para uso.
+
+**Exemplo de Resposta:**
+```json
+{
+  "providers": ["HUBSPOT"]
+}
+```
+
+#### Callback de Autorização
+```http
+GET /api/v1/auth/callback?code=xyz&state=HUBSPOT
+```
+Endpoint usado após a autenticação do usuário no provedor, gera tokens de acesso.
+
+**Exemplo de Resposta:**
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
 
 ### Gestão de Contatos
 
@@ -121,18 +148,34 @@ Header: Authorization: Bearer {token}
 ```
 Recebe um objeto contendo os dados do contato e, caso ocorra um retorno 429 pelo provider (por exemplo, Hubspot), a requisição é encaminhada para a fila de delay e posteriormente reprocessada.
 
+**Exemplo de Resposta:**
+```json
+{
+  "email": "exemplo@dominio.com",
+  "firstName": "João",
+  "lastName": "Silva"
+}
+```
+
 #### Listar Targets Disponíveis
 ```http
 GET /api/v1/contacts/available-targets
 ```
 Retorna uma lista das plataformas de gestão de contatos suportadas.
 
+**Exemplo de Resposta:**
+```json
+{
+  "targets": ["HUBSPOT"]
+}
+```
+
 ## Ferramentas de Desenvolvimento
 
 ### Acesso ao Banco de Dados
 - Console H2: http://localhost:8080/h2-console
 - JDBC URL: jdbc:h2:mem:testdb
-- Usuário: sa
+- Usuário: sa 
 - Senha: (deixar em branco)
 
 ### Gerenciamento do RabbitMQ
@@ -146,20 +189,20 @@ Retorna uma lista das plataformas de gestão de contatos suportadas.
    - Implementar backoff exponencial para mecanismos de retry
    - Adicionar parâmetros de delay configuráveis
 
+
 2. Melhorias no Banco de Dados
    - Migração para bancos de dados de produção
-   - Implementação de clustering de banco de dados
-   - Otimização de pool de conexões
+
 
 3. Melhorias na Autenticação
    - Provedores OAuth adicionais
    - Gerenciamento aprimorado de tokens
    - Implementação de refresh token
 
+
 4. Monitoramento e Observabilidade
    - Integração com ferramentas de monitoramento
-   - Sistema de logging aprimorado
-   - Coleta de métricas de desempenho
+   
 
 5. Melhorias de Segurança
    - Limitação de taxa por cliente
@@ -241,15 +284,42 @@ This will start all necessary services:
 
 #### Get Login URL
 ```http
-GET /api/v1/auth/login-url
+GET /api/v1/auth/login-url?provider=HUBSPOT
 ```
 Returns an authentication URL for user authorization.
+
+**Example Response:**
+```json
+{
+  "link": "https://app.hubspot.com/oauth/authorize?client_id=xxxx&scope=contacts&redirect_uri=http://localhost:8080/api/v1/auth/callback"
+}
+```
 
 #### List Available Providers
 ```http
 GET /api/v1/auth/available-providers
 ```
 Returns a list of supported authentication providers.
+
+**Example Response:**
+```json
+{
+  "providers": ["HUBSPOT"]
+}
+```
+
+#### Authentication Callback
+```http
+GET /api/v1/auth/callback?code=xyz&state=HUBSPOT
+```
+Endpoint used after user authentication with the provider, generates access tokens.
+
+**Example Response:**
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
 
 ### Contact Management
 
@@ -265,12 +335,29 @@ Header: Authorization: Bearer {token}
     "lastName": "Doe"
 }
 ```
+Receives a contact object and processes it. If a 429 response is received from the provider (e.g., Hubspot), the request is sent to a delay queue for later processing.
+
+**Example Response:**
+```json
+{
+  "email": "example@domain.com",
+  "firstName": "John",
+  "lastName": "Doe"
+}
+```
 
 #### List Available Targets
 ```http
 GET /api/v1/contacts/available-targets
 ```
 Returns a list of supported contact management platforms.
+
+**Example Response:**
+```json
+{
+  "targets": ["HUBSPOT"]
+}
+```
 
 ## Development Tools
 
@@ -313,20 +400,20 @@ Currently using H2 for session management with easy migration paths to:
     - Implement exponential backoff for retry mechanisms
     - Add configurable delay parameters
 
+
 2. Database Enhancements
     - Migration to production-grade databases
-    - Implementation of database clustering
-    - Connection pooling optimization
+   
 
 3. Authentication Enhancements
     - Additional OAuth providers
     - Enhanced token management
     - Refresh token implementation
 
+
 4. Monitoring and Observability
     - Integration with monitoring tools
-    - Enhanced logging system
-    - Performance metrics collection
+
 
 5. Security Enhancements
     - Rate limiting per client
