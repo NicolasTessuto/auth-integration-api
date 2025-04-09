@@ -18,15 +18,13 @@ Esta API foi desenvolvida com foco na integração e autorização com plataform
 
 ## Funcionalidades
 
-- Sistema de autenticação com múltiplos provedores
+- Sistema de autenticação extensível para múltiplos provedores
 - Arquitetura de integração extensível para diversas plataformas de gestão de leads
 - Processamento assíncrono de mensagens com mecanismos automáticos de retry
 - Proteção contra limitação de taxa (rate-limiting) com sistema inteligente de filas
 - Autenticação baseada em tokens
 - Sincronização de dados de leads em tempo real
-- Webhook para Notificação de Novo Contato
-
-
+- Webhook para notificação "contato salvo" no target
 
 ---
 
@@ -35,9 +33,9 @@ Esta API foi desenvolvida com foco na integração e autorização com plataform
 - **Linguagem:** Java 21
 - **Build & Dependency Management:** Gradle
 - **Framework:** Spring Boot com Spring Webflux
-- **Persistência:** JPA e banco H2 (podendo ser substituído por um banco de produção, como MongoDB ou DynamoDB)
-- **Mensageria:** RabbitMQ (para fallback em caso de retorno 429 pela API do Hubspot)
-- **Integração de Testes de Webhook:** Ngrok, para estabelecer um canal HTTPS temporário entre a web e a API
+- **Persistência:** JPA e banco H2  
+- **Mensageria:** RabbitMQ 
+- **Integração de Testes de Webhook:** Ngrok
 - **Utilitários:** Lombok
 
 
@@ -51,7 +49,7 @@ Esta API foi desenvolvida com foco na integração e autorização com plataform
 ## Configuração do Ambiente
 
 1. Clone o repositório
-2. Atualize o arquivo `.env` na raiz do projeto com as seguintes variáveis:
+2. Atualize o arquivo `.env` na raiz do projeto com os valores para as seguintes variáveis:
 
 ```env
 # HubSpot Integration Credentials
@@ -68,6 +66,9 @@ Esta API foi desenvolvida com foco na integração e autorização com plataform
 #RABBIT_HUBSPOT_CONTACT_FALLBACK_QUEUE= xxxxx
 #RABBIT_HUBSPOT_CONTACT_DELAY_FALLBACK_QUEUE= xxxxx
 #RABBIT_HUBSPOT_CONTACT_FALLBACK_ERROR_QUEUE= xxxxx
+
+# Ngrok
+NGROK_AUTHTOKEN=xxxxx
 ```
 
 ## Instalação e Execução
@@ -82,6 +83,7 @@ Isso iniciará todos os serviços necessários:
 - Servidor API (padrão: porta 8080)
 - RabbitMQ (portas: 5672, 15672)
 - Banco de dados H2
+- Ngrok (tunel configurado para a URL na variavel de ambiente)
 
 ---
 
