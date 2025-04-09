@@ -24,6 +24,9 @@ Esta API foi desenvolvida com foco na integração e autorização com plataform
 - Proteção contra limitação de taxa (rate-limiting) com sistema inteligente de filas
 - Autenticação baseada em tokens
 - Sincronização de dados de leads em tempo real
+- Webhook para Notificação de Novo Contato
+
+
 
 ---
 
@@ -32,8 +35,9 @@ Esta API foi desenvolvida com foco na integração e autorização com plataform
 - **Linguagem:** Java 21
 - **Build & Dependency Management:** Gradle
 - **Framework:** Spring Boot com Spring Webflux
-- **Persistência:** JPA e banco H2 (poderá ser substituído por um banco de produção, como MongoDB ou DynamoDB)
+- **Persistência:** JPA e banco H2 (podendo ser substituído por um banco de produção, como MongoDB ou DynamoDB)
 - **Mensageria:** RabbitMQ (para fallback em caso de retorno 429 pela API do Hubspot)
+- **Integração de Testes de Webhook:** Ngrok, para estabelecer um canal HTTPS temporário entre a web e a API
 - **Utilitários:** Lombok
 
 
@@ -84,13 +88,16 @@ Isso iniciará todos os serviços necessários:
 ## Arquitetura e Decisões Técnicas
 
 - **Extensibilidade:**  
-  A API foi construída de forma modular. Foi implementado um serviço que utiliza um `genericClient`, permitindo que os clientes (ou _providers_) de autorização ou alvos de criação de contatos estendam esse client de forma simples. Essa abordagem garante que, no futuro, a adição de um novo provider ou target seja ágil e com o mínimo de alterações no fluxo existente.
+  A API foi construída de forma modular. A API conta com um serviço que utiliza um `genericClient`, permitindo que os clientes (ou _providers_) de autorização ou alvos de criação de contatos estendam esse client de forma simples. Essa abordagem garante que, no futuro, a adição de um novo provider ou target seja ágil e com o mínimo de alterações no fluxo existente.
 
 - **Persistência e Estado:**  
   Utilizei o banco H2 para armazenar a sessão do usuário em memória. Para ambientes de produção, recomenda-se a migração para um banco robusto ou um banco não relacional (como MongoDB ou DynamoDB), dependendo da natureza dos dados e requisitos do projeto.
 
 - **Gerenciamento de Falhas com RabbitMQ:**  
   Em caso de retorno 429 (Too Many Requests) pela API do Hubspot, as mensagens são encaminhadas para uma fila de delay com TTL de 60 segundos. Após esse período, a mensagem é redirecionada para a fila principal, onde o fluxo de reprocessamento tenta novamente inserir o contato. Se persistir o erro, a mensagem é movida para uma fila DLQ, permitindo o tratamento posterior. Uma melhoria futura prevista é a implementação de um TTL dinâmico, que se ajustaria conforme a quantidade de mensagens, garantindo um reprocessamento mais escalonado.
+
+- **Integração com Hubspot via Webhook e Ngrok:**
+  Para facilitar a visualização e o teste do fluxo de notificação, foi criado um novo endpoint que espera chamadas do Hubspot sempre que um novo contato é cadastrado. Com a integração do Ngrok, é possível simular um ambiente HTTPS, permitindo que o webhook configurado no Hubspot seja acionado corretamente.
 
 ---
 
@@ -102,7 +109,7 @@ Isso iniciará todos os serviços necessários:
 ```http
 GET /api/v1/auth/login-url?provider=HUBSPOT
 ```
-Retorna uma URL para o usuário acessar o sistema, baseada no _authorization provider_ desejado (quando houver mais de um, o parâmetro `provider` pode ser informado na request).
+Retorna uma URL para o usuário acessar o sistema, baseada no _authorization provider_ desejado (quando houver mais de um, o parâmetro `provider` pode ser informado na requisição).
 
 **Exemplo de Resposta:**
 ```json
@@ -174,6 +181,50 @@ Retorna uma lista das plataformas de gestão de contatos suportadas.
   "targets": ["HUBSPOT"]
 }
 ```
+
+### Webhook para Notificação de Novo Contato
+Este endpoint foi criado para receber chamadas do Hubspot sempre que um novo contato é cadastrado. Com a integração do Ngrok, é possível testar este fluxo como se a API estivesse operando em um ambiente HTTPS
+```http
+POST /api/v1/webhooks/contacts
+```
+```json
+[
+  {
+  "eventId": 1534991568,
+  "subscriptionId": 3434176,
+  "portalId": 49645859,
+  "appId": 10457515,
+  "occurredAt": 1744159176740,
+  "subscriptionType": "contact.creation",
+  "attemptNumber": 6,
+  "objectId": 112558566461,
+  "changeFlag": "CREATED",
+  "changeSource": "INTEGRATION",
+  "sourceId": "10457515"
+  }
+]
+```
+**Exemplo de Resposta (log no código):**
+```
+-=-=-=-=-NEW CONTACT CREATED-=-=-=-=-
+[
+    ContactIntegrationCallback [
+    eventId=2973775008,
+    subscriptionId=3434176,
+    portalId=49645859,
+    appId=10457515,
+    occurredAt=1744160564627,
+    subscriptionType=contact.creation,
+    attemptNumber=0,
+    objectId=112572146736,
+    changeFlag=CREATED,
+    changeSource=INTEGRATION,
+    sourceId=10457515
+    ]
+]
+-=-=-=-=-NEW CONTACT CREATED-=-=-=-=-
+```
+
 
 ## Ferramentas de Desenvolvimento
 
