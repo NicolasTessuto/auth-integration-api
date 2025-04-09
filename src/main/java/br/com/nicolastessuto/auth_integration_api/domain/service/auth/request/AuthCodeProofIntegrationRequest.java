@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 
 @Builder
-public record AuthCodeProofIntegrationRequest (
+public record AuthCodeProofIntegrationRequest(
 
         @JsonProperty("grant_type")
         String grantType,
@@ -19,5 +19,6 @@ public record AuthCodeProofIntegrationRequest (
         String redirect_uri,
 
         String code
-) {}
+) {
+}
 

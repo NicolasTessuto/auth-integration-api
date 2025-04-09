@@ -2,10 +2,10 @@ package br.com.nicolastessuto.auth_integration_api.domain.service.contact.client
 
 import br.com.nicolastessuto.auth_integration_api.config.exception.HubspotIntegrationException;
 import br.com.nicolastessuto.auth_integration_api.domain.service.contact.GenericContactClient;
-import br.com.nicolastessuto.auth_integration_api.domain.service.contact.request.ContactDataIntegrationRequest;
-import br.com.nicolastessuto.auth_integration_api.domain.service.contact.request.ContactIntegrationMessageRequest;
-import br.com.nicolastessuto.auth_integration_api.domain.service.contact.request.ContactIntegrationRequest;
 import br.com.nicolastessuto.auth_integration_api.domain.service.contact.request.ContactRequest;
+import br.com.nicolastessuto.auth_integration_api.domain.service.contact.request.integration.ContactDataIntegrationRequest;
+import br.com.nicolastessuto.auth_integration_api.domain.service.contact.request.integration.ContactIntegrationMessageRequest;
+import br.com.nicolastessuto.auth_integration_api.domain.service.contact.request.integration.ContactIntegrationRequest;
 import br.com.nicolastessuto.auth_integration_api.domain.service.contact.response.ContactDataIntegrationResponse;
 import br.com.nicolastessuto.auth_integration_api.domain.service.contact.response.ContactIntegrationResponse;
 import br.com.nicolastessuto.auth_integration_api.domain.service.contact.response.ContactResponse;
@@ -70,7 +70,7 @@ public class HubspotContactClient implements GenericContactClient {
     }
 
     private Mono<Object> validateOrThrowException(ClientResponse clientResponse, ContactIntegrationRequest contactRequest) {
-        if(clientResponse.statusCode().isError()) {
+        if (clientResponse.statusCode().isError()) {
             log.error("Error in trying to resend a contact to hubspot" + contactRequest);
             throw new RuntimeException("Error in trying to resend a contact to hubspot " + clientResponse.statusCode());
         }
@@ -85,7 +85,7 @@ public class HubspotContactClient implements GenericContactClient {
                         .lastName(contactRequest.lastName())
                         .build();
 
-       return ContactIntegrationRequest.builder()
+        return ContactIntegrationRequest.builder()
                 .properties(contactDataIntegrationRequest)
                 .build();
     }

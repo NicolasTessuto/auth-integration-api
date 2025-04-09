@@ -7,12 +7,15 @@ import br.com.nicolastessuto.auth_integration_api.domain.service.contact.Generic
 import br.com.nicolastessuto.auth_integration_api.domain.service.contact.request.ContactRequest;
 import br.com.nicolastessuto.auth_integration_api.domain.service.contact.response.AvailableTargetsResponse;
 import br.com.nicolastessuto.auth_integration_api.domain.service.contact.response.ContactResponse;
+import br.com.nicolastessuto.auth_integration_api.domain.service.contact.response.integration.ContactIntegrationCallback;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ContactServiceImpl implements ContactService {
@@ -27,12 +30,20 @@ public class ContactServiceImpl implements ContactService {
     public AvailableTargetsResponse getAvailableTargets() {
         List<String> targets = new ArrayList<>();
 
-        for (Target target : Target.values()){
+        for (Target target : Target.values()) {
             targets.add(target.name());
         }
         return AvailableTargetsResponse.builder()
                 .targets(targets)
                 .build();
+    }
+
+    @Override
+    public Void receiveAndLogContactCreationCallback(List<ContactIntegrationCallback> contactResultIntegration) {
+        log.info("-=-=-=-=-NEW CONTACT CREATE-=-=-=-=-");
+        log.info(contactResultIntegration.toString());
+        log.info("-=-=-=-=-NEW CONTACT CREATE-=-=-=-=-");
+        return null;
     }
 
     private GenericContactClient validateProviderAndGetContactClient(String targetRequest) {

@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class AuthIntegrationApiApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(AuthIntegrationApiApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(AuthIntegrationApiApplication.class, args);
+    }
 
 }
