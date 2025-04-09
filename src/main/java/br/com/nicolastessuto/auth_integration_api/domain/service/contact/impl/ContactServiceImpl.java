@@ -40,9 +40,9 @@ public class ContactServiceImpl implements ContactService {
 
     @Override
     public Void receiveAndLogContactCreationCallback(List<ContactIntegrationCallback> contactResultIntegration) {
-        log.info("-=-=-=-=-NEW CONTACT CREATE-=-=-=-=-");
+        log.info("-=-=-=-=-NEW CONTACT CREATED-=-=-=-=-");
         log.info(contactResultIntegration.toString());
-        log.info("-=-=-=-=-NEW CONTACT CREATE-=-=-=-=-");
+        log.info("-=-=-=-=-NEW CONTACT CREATED-=-=-=-=-");
         return null;
     }
 
