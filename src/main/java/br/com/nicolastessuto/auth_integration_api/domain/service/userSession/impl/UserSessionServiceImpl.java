@@ -1,9 +1,9 @@
 package br.com.nicolastessuto.auth_integration_api.domain.service.userSession.impl;
 
 import br.com.nicolastessuto.auth_integration_api.domain.auth.UserSession;
-import br.com.nicolastessuto.auth_integration_api.domain.service.auth.response.AuthTokenIntegrationResponse;
-import br.com.nicolastessuto.auth_integration_api.domain.service.userSession.UserSessionService;
 import br.com.nicolastessuto.auth_integration_api.domain.respository.UserSessionRepository;
+import br.com.nicolastessuto.auth_integration_api.domain.service.auth.response.integration.AuthTokenIntegrationResponse;
+import br.com.nicolastessuto.auth_integration_api.domain.service.userSession.UserSessionService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

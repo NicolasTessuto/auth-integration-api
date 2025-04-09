@@ -4,4 +4,5 @@ public record ContactRequest(
         String email,
         String firstName,
         String lastName
-) {}
+) {
+}

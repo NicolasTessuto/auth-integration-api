@@ -1,24 +1,18 @@
 package br.com.nicolastessuto.auth_integration_api.domain.service.auth.client;
 
 import br.com.nicolastessuto.auth_integration_api.domain.service.auth.GenericAuthClient;
-import br.com.nicolastessuto.auth_integration_api.domain.service.auth.response.AuthTokenIntegrationResponse;
 import br.com.nicolastessuto.auth_integration_api.domain.service.auth.response.TokenResponse;
+import br.com.nicolastessuto.auth_integration_api.domain.service.auth.response.integration.AuthTokenIntegrationResponse;
 import br.com.nicolastessuto.auth_integration_api.domain.service.userSession.UserSessionService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-
-import java.net.URI;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -47,7 +41,8 @@ public class HubspotAuthClient implements GenericAuthClient {
                 "&state=HUBSPOT";
 
         String availableScopes = "oauth%20" +
-                "crm.objects.contacts.write";
+                "crm.objects.contacts.write%20" +
+                "crm.objects.contacts.read";
 
         return String.format(
                 HUBSPOT_AUTH_BASE_LINK,
@@ -91,7 +86,7 @@ public class HubspotAuthClient implements GenericAuthClient {
         formData.add("client_secret", HUBSPOT_CLIENT_SECRET);
 
         if (hasToUpdateToken) {
-            formData.add("grant_type",  "refresh_token");
+            formData.add("grant_type", "refresh_token");
             formData.add("refresh_token", code);
         } else {
             formData.add("grant_type", "authorization_code");
@@ -99,11 +94,11 @@ public class HubspotAuthClient implements GenericAuthClient {
         }
 
         return webClient.post()
-                        .uri(HUBSPOT_EXCHANGE_FOR_TOKEN_URI)
-                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                        .bodyValue(formData)
-                        .retrieve()
-                        .bodyToMono(AuthTokenIntegrationResponse.class);
+                .uri(HUBSPOT_EXCHANGE_FOR_TOKEN_URI)
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .bodyValue(formData)
+                .retrieve()
+                .bodyToMono(AuthTokenIntegrationResponse.class);
     }
 
 }

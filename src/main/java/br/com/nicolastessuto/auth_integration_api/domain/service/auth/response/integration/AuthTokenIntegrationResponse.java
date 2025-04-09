@@ -1,4 +1,4 @@
-package br.com.nicolastessuto.auth_integration_api.domain.service.auth.response;
+package br.com.nicolastessuto.auth_integration_api.domain.service.auth.response.integration;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
@@ -13,5 +13,5 @@ public record AuthTokenIntegrationResponse(
 
         @JsonProperty("expires_in")
         Integer expiresIn
-)
-{}
+) {
+}

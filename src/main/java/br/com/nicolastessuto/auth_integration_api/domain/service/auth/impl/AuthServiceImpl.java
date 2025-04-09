@@ -9,7 +9,6 @@ import br.com.nicolastessuto.auth_integration_api.domain.service.auth.response.A
 import br.com.nicolastessuto.auth_integration_api.domain.service.auth.response.TokenResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -47,7 +46,7 @@ public class AuthServiceImpl implements AuthService {
     public AvailableProvidersResponse getAvailableProviders() {
         List<String> providers = new ArrayList<>();
 
-        for (Provider provider : Provider.values()){
+        for (Provider provider : Provider.values()) {
             providers.add(provider.name());
         }
         return AvailableProvidersResponse.builder()

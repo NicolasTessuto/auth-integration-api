@@ -4,10 +4,13 @@ import br.com.nicolastessuto.auth_integration_api.domain.service.contact.Contact
 import br.com.nicolastessuto.auth_integration_api.domain.service.contact.request.ContactRequest;
 import br.com.nicolastessuto.auth_integration_api.domain.service.contact.response.AvailableTargetsResponse;
 import br.com.nicolastessuto.auth_integration_api.domain.service.contact.response.ContactResponse;
+import br.com.nicolastessuto.auth_integration_api.domain.service.contact.response.integration.ContactIntegrationCallback;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,6 +29,11 @@ public class ContactController {
                                                             @RequestParam(defaultValue = "HUBSPOT") String target,
                                                             @RequestHeader(value = "Authorization") String authorization) {
         return ResponseEntity.status(HttpStatus.CREATED).body(contactService.createNewContact(contactRequest, target, authorization));
+    }
+
+    @PostMapping("/callback")
+    public ResponseEntity<Void> receiveCreateContactCallback(@RequestBody List<ContactIntegrationCallback> contactResultIntegration) {
+        return ResponseEntity.ok().body(contactService.receiveAndLogContactCreationCallback(contactResultIntegration));
     }
 
 }

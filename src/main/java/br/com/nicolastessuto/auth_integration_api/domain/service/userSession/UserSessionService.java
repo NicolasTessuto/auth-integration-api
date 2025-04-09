@@ -1,6 +1,6 @@
 package br.com.nicolastessuto.auth_integration_api.domain.service.userSession;
 
-import br.com.nicolastessuto.auth_integration_api.domain.service.auth.response.AuthTokenIntegrationResponse;
+import br.com.nicolastessuto.auth_integration_api.domain.service.auth.response.integration.AuthTokenIntegrationResponse;
 
 public interface UserSessionService {
     void saveUserSession(String id, AuthTokenIntegrationResponse authTokenIntegrationResponse);

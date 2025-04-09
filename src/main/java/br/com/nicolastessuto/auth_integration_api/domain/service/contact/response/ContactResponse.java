@@ -4,9 +4,8 @@ public record ContactResponse(
         String email,
         String firstName,
         String lastName
-)
-{
-    public ContactResponse(ContactIntegrationResponse contactDataIntegrationResponse){
+) {
+    public ContactResponse(ContactIntegrationResponse contactDataIntegrationResponse) {
         this(
                 contactDataIntegrationResponse.properties().email(),
                 contactDataIntegrationResponse.properties().firstName(),

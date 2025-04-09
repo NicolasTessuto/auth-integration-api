@@ -1,8 +1,8 @@
 # Authorization and Integration API Platform
 
-### API de Autorização e Integração com Plataformas de Salvamento de Leads
+### API de Autorização e Integração com Plataformas de gerenciamento de Leads
 
-Esta API foi desenvolvida com foco na integração e autorização com plataformas de salvamento de leads. Ela foi projetada para ser facilmente extensível, permitindo a adição de novos _authorization providers_ ou _targets_ de contato com o mínimo esforço, tornando-a adequada para ambientes de produção.
+Esta API foi desenvolvida com foco na integração e autorização com plataformas de gerenciamento de leads. Ela foi projetada para ser facilmente extensível, permitindo a adição de novos _authorization providers_ ou _targets_ de contato com o mínimo esforço, tornando-a adequada para ambientes de produção.
 
 ## Sumário
 
@@ -15,8 +15,6 @@ Esta API foi desenvolvida com foco na integração e autorização com plataform
 - [Arquitetura e Decisões Técnicas](#arquitetura-e-decisões-técnicas)
 - [Ferramentas de Desenvolvimento](#ferramentas-de-desenvolvimento)
 - [Melhorias Futuras](#melhorias-futuras)
-- [Contribuição](#contribuição)
-- [Licença](#licença)
 
 ## Funcionalidades
 
@@ -26,7 +24,6 @@ Esta API foi desenvolvida com foco na integração e autorização com plataform
 - Proteção contra limitação de taxa (rate-limiting) com sistema inteligente de filas
 - Autenticação baseada em tokens
 - Sincronização de dados de leads em tempo real
-
 
 ---
 
@@ -50,13 +47,23 @@ Esta API foi desenvolvida com foco na integração e autorização com plataform
 ## Configuração do Ambiente
 
 1. Clone o repositório
-2. Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
+2. Atualize o arquivo `.env` na raiz do projeto com as seguintes variáveis:
 
 ```env
-# Adicione suas variáveis de ambiente aqui
-# Exemplo:
-# HUBSPOT_CLIENT_ID=seu_client_id
-# HUBSPOT_CLIENT_SECRET=seu_client_secret
+# HubSpot Integration Credentials
+#HUBSPOT_CLIENT_ID= xxxxx
+#HUBSPOT_CLIENT_SECRET= xxxxx
+#HUBSPOT_REDIRECT_URI= xxxxx
+#HUBSPOT_EXCHANGE_FOR_TOKEN_URL= xxxxx
+
+# Rabbit integration credentials
+#RABBITMQ_USERNAME= xxxxx
+#RABBITMQ_PASSWORD= xxxxx
+
+# Rabbit fallback queue
+#RABBIT_HUBSPOT_CONTACT_FALLBACK_QUEUE= xxxxx
+#RABBIT_HUBSPOT_CONTACT_DELAY_FALLBACK_QUEUE= xxxxx
+#RABBIT_HUBSPOT_CONTACT_FALLBACK_ERROR_QUEUE= xxxxx
 ```
 
 ## Instalação e Execução
@@ -83,7 +90,7 @@ Isso iniciará todos os serviços necessários:
   Utilizei o banco H2 para armazenar a sessão do usuário em memória. Para ambientes de produção, recomenda-se a migração para um banco robusto ou um banco não relacional (como MongoDB ou DynamoDB), dependendo da natureza dos dados e requisitos do projeto.
 
 - **Gerenciamento de Falhas com RabbitMQ:**  
-  Em caso de retorno 429 (Too Many Requests) pela API do Hubspot, as mensagens são encaminhadas para uma fila de delay com TTL de 60 segundos. Após esse período, a mensagem é redirecionada para a fila principal, onde o fluxo de reprocessamento tenta novamente inserir o contato. Se persistir o erro, a mensagem é movida para uma fila DQL, permitindo o tratamento posterior. Uma melhoria futura prevista é a implementação de um TTL dinâmico, que se ajustaria conforme a quantidade de mensagens, garantindo um reprocessamento mais escalonado.
+  Em caso de retorno 429 (Too Many Requests) pela API do Hubspot, as mensagens são encaminhadas para uma fila de delay com TTL de 60 segundos. Após esse período, a mensagem é redirecionada para a fila principal, onde o fluxo de reprocessamento tenta novamente inserir o contato. Se persistir o erro, a mensagem é movida para uma fila DLQ, permitindo o tratamento posterior. Uma melhoria futura prevista é a implementação de um TTL dinâmico, que se ajustaria conforme a quantidade de mensagens, garantindo um reprocessamento mais escalonado.
 
 ---
 
