@@ -1,6 +1,6 @@
 # Authorization and Integration API Platform
 
-Esta API foi desenvolvida com foco na integração e autorização com plataformas de gerenciamento de leads. Ela foi projetada para ser facilmente extensível, permitindo a adição de novos _authorization providers_ ou _targets_ de contato com o mínimo esforço, tornando-a adequada para ambientes de produção.
+Esta API foi desenvolvida com foco na integração e autorização com plataformas de gerenciamento de leads. Foi projetada para ser facilmente extensível, permitindo a adição de novos _authorization providers_ ou _targets_ de contato com o mínimo esforço.
 
 ## Sumário
 
